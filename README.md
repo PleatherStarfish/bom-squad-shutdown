@@ -1,1 +1,0 @@
-# bom-squad-shutdown
