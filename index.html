@@ -17,30 +17,47 @@
       </p>
 
       <p>
-        If you previously used Bom Squad and want a CSV copy of your data, you can request it here:
+        If you previously used Bom Squad and want a CSV copy of your data, email us with the details below.
       </p>
 
       <div class="actions">
-        <a class="btn" id="emailButton" href="#" rel="nofollow">Request a CSV export</a>
-        <a class="btn secondary" href="BLOGGER_URL_HERE">Read the blog</a>
+        <a class="btn secondary" href="https://www.tacet.space/blog" target="_blank" rel="nofollow noopener noreferrer">
+          Read the blog
+        </a>
       </div>
 
-      <p class="fineprint">
-        Contact (spam-protected):
-        <a id="emailLink" href="#" rel="nofollow">click to reveal</a>
-      </p>
+      <div class="fineprint">
+        <p>
+          <strong>How to request your CSV export</strong><br />
+          1) Email: <span id="emailDisplay">lontano [dot] composer [at] gmail [dot] com</span>
+          <button class="btn secondary" id="copyEmailButton" type="button">Copy email</button>
+          <span id="copyStatus" aria-live="polite"></span><br />
+          2) Subject: <span>Bom Squad data export request</span><br />
+          3) Include in your message:
+        </p>
+
+        <ul>
+          <li>Your account email</li>
+          <li>Approximate date range of your usage (if you remember)</li>
+          <li>Any other helpful details</li>
+        </ul>
+      </div>
 
       <noscript>
         <p class="fineprint">
-          JavaScript is disabled, contact:
+          JavaScript is disabled. Please email:
           lontano [dot] composer [at] gmail [dot] com
+          <br />
+          Subject: Bom Squad data export request
+          <br />
+          Include: account email, approximate date range, and any other details.
         </p>
       </noscript>
     </div>
   </main>
 
   <script>
-    // Heavily obfuscated email: base64 bytes, XOR decode, then build mailto at runtime.
+    // Obfuscated email: base64 bytes, XOR decode, then allow copy without relying on mailto.
     (function () {
       var k = 23;
       var b64 = "e3h5Y3Z5eDl0eHpneGRyZVdwenZ+ezl0eHo=";
@@ -52,32 +69,43 @@
         return out;
       }
 
-      var bytes = b64ToBytes(b64);
-      var email = "";
-      for (var i = 0; i < bytes.length; i++) {
-        email += String.fromCharCode(bytes[i] ^ k);
+      function decodeEmail() {
+        var bytes = b64ToBytes(b64);
+        var email = "";
+        for (var i = 0; i < bytes.length; i++) {
+          email += String.fromCharCode(bytes[i] ^ k);
+        }
+        return email;
       }
 
-      var subject = encodeURIComponent("Bom Squad data export request");
-      var body = encodeURIComponent(
-        "Hi,\n\nI would like a CSV export of my Bom Squad data.\n\n" +
-        "Account email:\n" +
-        "Approximate date range:\n" +
-        "Any other details:\n\n" +
-        "Thanks."
-      );
+      var email = decodeEmail();
 
-      var mailto = "mailto:" + email + "?subject=" + subject + "&body=" + body;
+      var display = document.getElementById("emailDisplay");
+      var copyBtn = document.getElementById("copyEmailButton");
+      var status = document.getElementById("copyStatus");
 
-      var link = document.getElementById("emailLink");
-      var btn = document.getElementById("emailButton");
-
-      if (link) {
-        link.href = mailto;
-        link.textContent = email.replace("@", " [at] ").replace(/\./g, " [dot] ");
+      if (display) {
+        // Keep spam-protected display text.
+        display.textContent = email.replace("@", " [at] ").replace(/\./g, " [dot] ");
+        display.title = "Use the Copy email button to copy the real address.";
       }
-      if (btn) {
-        btn.href = mailto;
+
+      if (copyBtn) {
+        copyBtn.addEventListener("click", function () {
+          if (!navigator.clipboard || !navigator.clipboard.writeText) {
+            if (status) status.textContent = "Copy is not supported here. Please type the address shown.";
+            return;
+          }
+
+          navigator.clipboard.writeText(email).then(
+            function () {
+              if (status) status.textContent = "Copied.";
+            },
+            function () {
+              if (status) status.textContent = "Copy failed. Please type the address shown.";
+            }
+          );
+        });
       }
     })();
   </script>
